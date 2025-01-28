@@ -31,12 +31,12 @@ para dar una traducción por maquina apropiada.
 
 ## Atajos de teclado 
 
-    * *Ctrl + O* Abrir un archivo gomata (gmt) con información de traducción.
-    * *Ctrl + S* Guardar los cambios actuales a un nuevo archivo gmt o al ultimo archivo guardado
-    * *Ctrl + F* Agregar todas las imagenes en una carpeta.
-    * *Ctrl + I* Agregar una unica imagen 
-    * *Ctrl + Scroll* Hacer zoom en una región de la imagen.
-    * *Ctrl + X* La seleccion sobre la imagen activa sera borrada, solo funciona mientras la imagen este en foco.
+ * **Ctrl + O** Abrir un archivo gomata (gmt) con información de traducción.
+ * **Ctrl + S** Guardar los cambios actuales a un nuevo archivo gmt o al ultimo archivo guardado
+ * **Ctrl + F** Agregar todas las imagenes en una carpeta.
+ * **Ctrl + I** Agregar una unica imagen 
+ * **Ctrl + Scroll** Hacer zoom en una región de la imagen.
+ * **Ctrl + X** La seleccion sobre la imagen activa sera borrada, solo funciona mientras la imagen este en foco.
 
 # Detalles y observaciones.
 
@@ -44,7 +44,7 @@ Manga-ocr puede aveces no reconocer los caracteres en la imagen de forma apropia
 
 # Roadmap
 
-    * Mostrar el texto traduccido directamente sobre las selecciones.
-    * Agregar boton para refrescar los caracteres selecionados y otro para la traducción por maquina.
-    * Permitir algunas operaciones de edición basicas para reducir el indice de error en el reconocimiento de texto.
-    * Permitir agregar anotaciones sobre el texto seleccionado.
+ * Mostrar el texto traduccido directamente sobre las selecciones.
+ * Agregar boton para refrescar los caracteres selecionados y otro para la traducción por maquina.
+ * Permitir algunas operaciones de edición basicas para reducir el indice de error en el reconocimiento de texto.
+ * Permitir agregar anotaciones sobre el texto seleccionado.

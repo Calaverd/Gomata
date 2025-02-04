@@ -44,7 +44,11 @@ Manga-ocr puede aveces no reconocer los caracteres en la imagen de forma apropia
 
 # Roadmap
 
- * Mostrar el texto traduccido directamente sobre las selecciones.
+ * Mejorar como se muestra el texto traduccido sobre las selecciones.
  * Agregar boton para refrescar los caracteres selecionados y otro para la traducción por maquina.
  * Permitir algunas operaciones de edición basicas para reducir el indice de error en el reconocimiento de texto.
  * Permitir agregar anotaciones sobre el texto seleccionado.
+
+# Iconos
+
+Los iconos fueron tomados de [Tabler Icons](https://tablericons.com/)

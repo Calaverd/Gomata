@@ -42,7 +42,8 @@ class InfoProyect():
             { "qtimg": pixmap,
               "path": path,
               "gui_info": {
-                  "showing_order": False 
+                  "showing_order": False,
+                  "showing_overlay_text": False
               },
               "text": []
             }
@@ -109,6 +110,7 @@ class MainWindow(QMainWindow):
         self.manga_ocr_instance = None
 
         self._is_showing_order = False
+        self._is_showing_overlay_text = False
         self.current_file_name = None
 
         self.status_label = None
@@ -161,6 +163,31 @@ class MainWindow(QMainWindow):
         else:
             self.btn_display_order.setText('Show Read Order')
 
+    @property
+    def is_showing_overlay_text(self):
+        return self._is_showing_overlay_text
+    
+    @is_showing_overlay_text.setter
+    def is_showing_overlay_text(self, value):
+        if self._is_showing_overlay_text == value:
+                return
+        self._is_showing_overlay_text = value
+
+        if self.selected_page_index != None:
+            LIST_QT_PIXMAPS.setPageGuiInfo(
+                self.selected_page_index,
+                "showing_overlay_text", value)
+        
+        if self.view:
+            self.view.setIsShowingText(value)
+        
+        if self.btn_display_overlay == None:
+            return
+        if self._is_showing_overlay_text:
+            self.btn_display_overlay.setText('Hide Overlay Text')
+        else:
+            self.btn_display_overlay.setText('Show Overlay Text')
+
 
     def createMenuBar(self):
         menubar = self.menuBar()
@@ -186,10 +213,18 @@ class MainWindow(QMainWindow):
         self.btn_display_order = QPushButton("Show Read Order")
         self.btn_display_order.setIcon(QIcon("./icons/switch-horizontal.svg")) 
         self.btn_display_order.clicked.connect(lambda:( setattr(self, 'is_showing_order', not self.is_showing_order) ))
-        #self.load_btn.clicked.connect(self.launchOpenImagenDialog)
         button_layout.addWidget(self.btn_display_order)
+
+
+        self.btn_display_overlay = QPushButton("Show Overlay Text")
+        self.btn_display_overlay.setIcon(QIcon("./icons/bubble-text.svg")) 
+        self.btn_display_overlay.clicked.connect(lambda:( setattr(self, 'is_showing_overlay_text', not self.is_showing_overlay_text) ))
+        button_layout.addWidget(self.btn_display_overlay)
+
+        #self.load_btn.clicked.connect(self.launchOpenImagenDialog)
         
         # Save button
+        """
         self.save_btn = QPushButton("Auto Fill")
         #self.save_btn.clicked.connect(self.save_selection)
         self.save_btn.setIcon(QIcon("./icons/settings-automation.svg"))
@@ -199,6 +234,7 @@ class MainWindow(QMainWindow):
         # Status label
         self.status_label = QLabel("No image loaded")
         button_layout.addWidget(self.status_label)
+        """
         
         #layout.addLayout(button_layout)
         
@@ -398,6 +434,7 @@ class MainWindow(QMainWindow):
         
         self.selected_page_index = index
         self.is_showing_order = LIST_QT_PIXMAPS.getPageGuiInfo(index, "showing_order")
+        self.is_showing_overlay_text = LIST_QT_PIXMAPS.getPageGuiInfo(index, "showing_overlay_text")
 
         # Clear previous image if any
         self.view.clear() # view uses the scene, so it goes first
@@ -468,6 +505,14 @@ class MainWindow(QMainWindow):
         for index, page in enumerate(pages):
             self.addImage(page['path'])
             print(index, page)
+            gui_info = page['gui_info']
+            LIST_QT_PIXMAPS.setPageGuiInfo(
+                index,
+                "showing_order", gui_info.get('showing_order') )
+            LIST_QT_PIXMAPS.setPageGuiInfo(
+                index,
+                "showing_overlay_text", gui_info.get('showing_overlay_text') )
+             
             
             text_on_page = []
             for text_info in page['text']:

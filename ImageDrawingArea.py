@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsEllipseItem, QGraphicsLineItem, QGraphicsPolygonItem
-from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QTransform, QPolygonF
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsEllipseItem, QGraphicsLineItem, QGraphicsPolygonItem, QGraphicsTextItem
+from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QTransform, QPolygonF, QFont
 from PyQt6.QtCore import Qt, QRectF, QPointF, QTimer, QLineF
 from PyQt6 import sip
 from math import sqrt
@@ -138,6 +138,7 @@ class ImageRect():
         self.use_color = self.color_normal
 
         self._is_mouse_hovering = False
+        self._show_text_overlay = False
 
         # Create an animated dotted line
         self.animated_lines = []
@@ -156,6 +157,8 @@ class ImageRect():
         self.id = id if id != None else uuid()
         self.detected_characters = detected
         self.machine_translation = machine_translation
+
+        self.text_item_ref = None
     
     # Calculate the origin point so the area of the rect
     # can never go bellow MIN_AREA_RECT
@@ -235,6 +238,18 @@ class ImageRect():
             self.use_color = self.color_normal if not self._is_mouse_hovering else self.color_focus
             self.render()
 
+    @property
+    def show_text_overlay(self):
+        return self._show_text_overlay
+
+    @show_text_overlay.setter
+    def show_text_overlay(self, value):
+        old_val = self._show_text_overlay
+        self._show_text_overlay = value
+        if old_val != value:
+            self.render()
+    
+
     # retuns a tuple of this rect in the form x,y,w,h
     def getDefinition(self):
         x = int(self._origin.x())
@@ -282,20 +297,26 @@ class ImageRect():
         return -1
 
     def clearFromScene(self):
+        if self.text_item_ref:
+            self.scene.removeItem(self.text_item_ref)
+            self.text_item_ref = None
         if self.item_reference:
             self.scene.removeItem(self.item_reference)
         for line in self.animated_lines:
             self.scene.removeItem(line)
         self.animated_lines = []
+
     
     def render(self):
         self.clearFromScene()
         global PEN_LINE_SIZE
         self.createLines()
 
+        (x,y,w,h) = self.getDefinition()
+
         self.drawable_rect = QRectF()
-        self.drawable_rect.setX(self._origin.x())
-        self.drawable_rect.setY(self._origin.y())
+        self.drawable_rect.setX(x)
+        self.drawable_rect.setY(y)
         self.drawable_rect.setBottomRight(self._end)
 
         pen = QPen(self.use_color, PEN_LINE_SIZE, Qt.PenStyle.SolidLine)
@@ -307,6 +328,19 @@ class ImageRect():
 
         for line in self.animated_lines:
             self.scene.addItem(line)
+
+        has_text =  (self.machine_translation and  len(self.machine_translation) > 0)
+        if has_text and self.show_text_overlay:
+            text_item = QGraphicsTextItem()
+            text_item.setHtml(f"<span style='color: yellow; background:rgba(5, 5, 5, 80%); '>{self.machine_translation}</span>")  # Set formatted text
+            text_item.setFont(QFont("Arial", 12))  # Set font and size
+            text_item.setPos(x, y)  # Position the text
+            text_item.setTextWidth(w)
+
+
+            # Add the text item to the scene
+            self.text_item_ref = text_item
+            self.scene.addItem(text_item)
     
     def hasPointInside(self, point):
         horizontal = point.x() > self._origin.x() and point.x() < self._end.x()
@@ -345,6 +379,7 @@ class ImageDrawingArea(QGraphicsView):
         self.list_of_draw_rects = []
 
         self.is_showing_orden_arrows = False
+        self.is_showing_overlay_text =  False
         self.list_of_arrows = []
         self.highlight_current_rect_arrow = None
 
@@ -408,7 +443,13 @@ class ImageDrawingArea(QGraphicsView):
             arrow = Arrow(start_point, end_point)
             arrow.scene = self.scene()
             arrow.render()
-            self.list_of_arrows.append(arrow)        
+            self.list_of_arrows.append(arrow)
+    
+    def setIsShowingText(self, value):
+        print(f'is shoginw text? {value}')
+        self.is_showing_overlay_text =  value
+        for rect in self.list_of_draw_rects:
+            rect.show_text_overlay = value
 
     def addTextSelections(self, list_text):
         for rect_data in list_text:
@@ -422,6 +463,7 @@ class ImageDrawingArea(QGraphicsView):
             gui_rect.render()
             rect_definition = gui_rect.getDefinition()
             gui_rect.image = self.current_pixmap.copy(*rect_definition)
+            gui_rect.show_text_overlay = self.is_showing_overlay_text
             self.list_of_draw_rects.append(gui_rect)
         self.informRectsUpdated()
 
@@ -546,6 +588,7 @@ class ImageDrawingArea(QGraphicsView):
             if not self.active_rect in self.list_of_draw_rects:
                 magnitude = getVectorMagnitude(self.active_rect._end - self.active_rect._origin)
                 if magnitude >= 32: 
+                    self.active_rect.show_text_overlay = self.is_showing_overlay_text
                     self.list_of_draw_rects.append(self.active_rect)
                     self.informRectsUpdated()
                     self.updateArrorws()

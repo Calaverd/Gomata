@@ -220,23 +220,6 @@ class MainWindow(QMainWindow):
         self.btn_display_overlay.setIcon(QIcon("./icons/bubble-text.svg")) 
         self.btn_display_overlay.clicked.connect(lambda:( setattr(self, 'is_showing_overlay_text', not self.is_showing_overlay_text) ))
         button_layout.addWidget(self.btn_display_overlay)
-
-        #self.load_btn.clicked.connect(self.launchOpenImagenDialog)
-        
-        # Save button
-        """
-        self.save_btn = QPushButton("Auto Fill")
-        #self.save_btn.clicked.connect(self.save_selection)
-        self.save_btn.setIcon(QIcon("./icons/settings-automation.svg"))
-        self.save_btn.setEnabled(False)
-        button_layout.addWidget(self.save_btn)
-        
-        # Status label
-        self.status_label = QLabel("No image loaded")
-        button_layout.addWidget(self.status_label)
-        """
-        
-        #layout.addLayout(button_layout)
         
         self.selected_page_index = None
         self.image_path = None
@@ -444,10 +427,7 @@ class MainWindow(QMainWindow):
         # Add new image to scene
         self.pixmap_current_item = self.scene.addPixmap(pixmap)
         self.scene.setSceneRect(QRectF(pixmap.rect()))
-        
-        # Enable save button
-        self.save_btn.setEnabled(True)
-        self.status_label.setText(f"Image loaded: {path.split('/')[-1]}")
+
         
         # Fit view to image
         self.view.setPixmap(pixmap)
